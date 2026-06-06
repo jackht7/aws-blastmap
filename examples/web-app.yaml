@@ -1,0 +1,82 @@
+# BlastMap Example — Serverless Task Management Web App
+# This example is purpose-built to show BlastMap's value AND to drive the
+# Optional Integrations: every Lambda and the API Gateway stage already have
+# X-Ray tracing enabled, and the planted SPOFs give the AWS DevOps Agent
+# realistic incidents to investigate using the generated SKILL.md.
+#
+# Findings this template is designed to surface:
+#   - Major SPOF: AppDatabase (single-AZ RDS Postgres — every authenticated request)
+#   - External SPOF: Stripe payment API (third-party, no circuit breaker/fallback)
+#   - Data loss risk: TasksTable (DynamoDB with no PITR)
+#   - Silent failure: NotificationQueue (SQS with no DLQ)
+#
+# Run BlastMap against this file:
+#   "Using the BlastMap prompt, analyse .blastmap/examples/serverless-web-app.yaml"
+
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Serverless task management web application
+
+Resources:
+  ApiGateway:
+    Type: AWS::ApiGateway::RestApi
+    Properties:
+      Name: task-app-api
+
+  ApiStage:
+    Type: AWS::ApiGateway::Stage
+    Properties:
+      StageName: prod
+      RestApiId: !Ref ApiGateway
+      TracingEnabled: true
+      # X-Ray enabled — recommended integration target
+
+  TaskLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: task-handler
+      Runtime: python3.12
+      Timeout: 15
+      TracingConfig:
+        Mode: Active
+        # X-Ray active tracing — recommended integration target
+      Environment:
+        Variables:
+          PAYMENT_API_URL: https://api.stripe.com/v1/charges
+          # Stripe is an external dependency with no circuit breaker or fallback —
+          # BlastMap will flag it as an EXTERNAL SPOF
+          DB_HOST: !GetAtt AppDatabase.Endpoint.Address
+
+  NotifyLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: notification-handler
+      Runtime: python3.12
+      Timeout: 10
+      TracingConfig:
+        Mode: Active
+
+  AppDatabase:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      DBInstanceClass: db.t3.medium
+      Engine: postgres
+      MultiAZ: false          # SPOF — every authenticated request depends on this
+      AllocatedStorage: 100
+
+  TasksTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: tasks
+      BillingMode: PAY_PER_REQUEST
+      # PointInTimeRecoverySpecification not set — data loss risk on bad writes/deletes
+
+  NotificationQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: task-notifications
+      # No RedrivePolicy (DLQ) — failed notification deliveries vanish silently
+
+  AssetsBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: task-app-assets
