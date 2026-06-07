@@ -11,7 +11,7 @@
 #   - Silent failure: NotificationQueue (SQS with no DLQ)
 #
 # Run BlastMap against this file:
-#   "Using the BlastMap prompt, analyse .blastmap/examples/serverless-web-app.yaml"
+#   "Using the BlastMap prompt, analyse .blastmap/examples/-web-app.yaml"
 
 AWSTemplateFormatVersion: "2010-09-09"
 Description: Serverless task management web application

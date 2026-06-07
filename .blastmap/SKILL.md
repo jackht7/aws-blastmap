@@ -7,7 +7,7 @@ description: >
   500s, checkout failures, data loss, notifications silently not being
   delivered, or total app-wide outage).
 agent-types: [incident, prevention, sre]
-version: 165f164
+version: be1a779
 ---
 
 # BlastMap Intelligence: web-app
@@ -85,7 +85,7 @@ When alert fires on **NotificationQueue / "users not receiving notifications"**:
 ## Deployment Notes
 
 - Last analysed: 2026-06-07
-- Architecture version: 165f164-web-app.yaml
+- Architecture version: be1a779-web-app.yaml
 - Next review trigger: any resource addition or change to AppDatabase, Stripe Payment API integration, TasksTable, NotificationQueue, or ApiGateway
 
 ## Agent Findings — Suggested Improvements

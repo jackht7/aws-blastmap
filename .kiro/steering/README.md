@@ -6,12 +6,7 @@ inclusion: manual
 
 | File | Purpose |
 |------|---------|
-| `blastmap.md` | The full BlastMap 6-step audit prompt. Load this when running a blast radius analysis against any architecture file. |
+| `blastmap.md` | Full 6-step blast radius audit prompt |
 
-## Usage
-
-In Kiro, reference this steering file when asking for a blast radius audit:
-
-> "Using the BlastMap prompt, analyse `example-app.yaml`"
-
+Usage: "Using the BlastMap prompt, analyse \<your-cfn-file\>.yaml"
 Outputs are written to `.blastmap/`.
