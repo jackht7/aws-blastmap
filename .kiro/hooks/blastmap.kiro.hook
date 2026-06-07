@@ -1,0 +1,16 @@
+{
+  "enabled": true,
+  "name": "BlastMap Blast Radius Analysis",
+  "description": "Runs blast radius audit on every CloudFormation change and writes SKILL.md + annotated CFN output",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "**/*.yaml"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "First, check if the edited YAML file contains 'AWSTemplateFormatVersion' or 'Resources:' with AWS resource types (indicating it's a CloudFormation template). If it's NOT a CloudFormation file, respond with 'Not a CloudFormation template, skipping BlastMap analysis' and stop. If it IS a CloudFormation file, run the BlastMap analysis from .kiro/steering/blastmap.md against it."
+  }
+}
